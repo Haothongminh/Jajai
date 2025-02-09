@@ -1,0 +1,100 @@
+-- Tạo nhân vật me nữ nhỏ có thể di chuyển bằng cách kéo
+local character = Instance.new("Part")
+character.Size = Vector3.new(2, 5, 2)  -- Kích thước của nhân vật
+character.Shape = Enum.PartType.Ball
+character.Color = Color3.fromRGB(255, 200, 200)  -- Màu sắc "me nữ nhỏ"
+character.Position = Vector3.new(0, 5, 0)  -- Vị trí ban đầu
+character.Anchored = false
+character.Parent = workspace
+
+-- Hàm cho phép di chuyển nhân vật khi kéo
+local dragging = false
+local dragger = nil
+local offset = Vector3.new()
+
+character.MouseButton1Down:Connect(function()
+    dragging = true
+    dragger = game.Players.LocalPlayer
+    offset = character.Position - dragger:GetMouse().Hit.p
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if dragging then
+        local newPos = dragger:GetMouse().Hit.p + offset
+        character.Position = Vector3.new(newPos.X, character.Position.Y, newPos.Z)
+    end
+end)
+
+game:GetService("UserInputService").InputEnded:Connect(function(input)
+    dragging = false
+end)
+
+-- Tạo GUI với nút
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.Players.LocalPlayer.PlayerGui
+
+local button = Instance.new("TextButton")
+button.Text = "Nhấn để trả lời câu hỏi"
+button.Size = UDim2.new(0, 200, 0, 50)
+button.Position = UDim2.new(0, 300, 0, 300)
+button.Parent = screenGui
+
+-- Hàm hỏi câu hỏi khi người chơi nhấn nút
+button.MouseButton1Click:Connect(function()
+    local answer = game:GetService("Players").LocalPlayer:PromptInputText("Đây có phải là Roblox Fruit không?")
+    if answer == "đúng" then
+        -- Hiển thị menu khi trả lời đúng
+        print("Câu trả lời đúng! Hiển thị menu.")
+        showMenu()
+    else
+        print("Câu trả lời sai.")
+    end
+end)
+
+-- Hàm để hiển thị menu
+function showMenu()
+    local menuFrame = Instance.new("Frame")
+    menuFrame.Size = UDim2.new(0, 300, 0, 200)
+    menuFrame.Position = UDim2.new(0, 500, 0, 200)
+    menuFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    menuFrame.Parent = screenGui
+
+    local fruitButton = Instance.new("TextButton")
+    fruitButton.Text = "Tạo mưa trái cây"
+    fruitButton.Size = UDim2.new(0, 200, 0, 50)
+    fruitButton.Position = UDim2.new(0, 50, 0, 100)
+    fruitButton.Parent = menuFrame
+
+    fruitButton.MouseButton1Click:Connect(function()
+        spawnRainOfFruits()
+    end)
+end
+
+-- Hàm tạo mưa trái cây
+function spawnRainOfFruits()
+    for i = 1, 5 do  -- Tạo 5 trái cây
+        local fruit = Instance.new("Part")
+        fruit.Size = Vector3.new(1, 1, 1)
+        fruit.Shape = Enum.PartType.Ball
+        fruit.Color = Color3.fromRGB(255, 0, 0)  -- Trái rồng có màu đỏ
+        fruit.Position = Vector3.new(math.random(-50, 50), 100, math.random(-50, 50))  -- Vị trí rơi ngẫu nhiên
+        fruit.Anchored = false
+        fruit.Parent = workspace
+
+        -- Thêm lực trọng trường để trái rơi xuống
+        local bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.MaxForce = Vector3.new(100000, 100000, 100000)
+        bodyVelocity.Velocity = Vector3.new(0, -50, 0)  -- Lực rơi xuống
+        bodyVelocity.Parent = fruit
+
+        -- Tạo ra trái rồng mới khi trái rơi gần
+        fruit.Touched:Connect(function(hit)
+            if hit and hit:IsA("Part") then
+                -- Tạo trái rồng mới
+                local newFruit = fruit:Clone()
+                newFruit.Position = fruit.Position + Vector3.new(0, 0, 5)
+                newFruit.Parent = workspace
+            end
+        end)
+    end
+end

@@ -1,2 +1,0 @@
-<?
-echo"con cu của ***"

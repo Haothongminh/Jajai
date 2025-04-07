@@ -1,1 +1,2 @@
+<?
 echo"con cu của ***"

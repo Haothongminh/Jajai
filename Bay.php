@@ -1,5 +1,7 @@
 <?php
 $name = "John";
-echo "con cu của, " . $name . "!";
+echo "con cu , " . $name . "!";
+echo "cu , " . $name . "nhỏ";
+
 ?>
 
